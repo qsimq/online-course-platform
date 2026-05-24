@@ -1,33 +1,32 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "lessons")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AsimaZhorabayevaLesson {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
     @Column(length = 5000)
     private String content;
 
-    private Integer duration;
+    private Integer orderIndex;
 
-    private String videoUrl;
+    private Integer durationMinutes;
 
-    private Integer orderNumber;
-
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
     private AsimaZhorabayevaCourse course;
 }
