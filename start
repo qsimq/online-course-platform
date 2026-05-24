@@ -1,0 +1,5 @@
+@echo off
+echo Starting Online Course Platform...
+docker-compose up -d
+echo Application started at http://localhost:8080
+echo Swagger UI: http://localhost:8080/swagger-ui.html
