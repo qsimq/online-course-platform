@@ -1,17 +1,16 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import java.util.ArrayList;
+import lombok.*;
 import java.util.List;
 
 @Entity
 @Table(name = "categories")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AsimaZhorabayevaCategory {
 
     @Id
@@ -24,5 +23,5 @@ public class AsimaZhorabayevaCategory {
     private String description;
 
     @OneToMany(mappedBy = "category")
-    private List<AsimaZhorabayevaCourse> courses = new ArrayList<>();
+    private List<AsimaZhorabayevaCourse> courses;
 }

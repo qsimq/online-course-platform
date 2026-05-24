@@ -1,19 +1,17 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import java.math.BigDecimal;
+import lombok.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "courses")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AsimaZhorabayevaCourse {
 
     @Id
@@ -26,28 +24,44 @@ public class AsimaZhorabayevaCourse {
     @Column(length = 2000)
     private String description;
 
-    private BigDecimal price;
+    private String instructor;
+
+    private Double price;
 
     private String thumbnailUrl;
 
-    @ManyToOne
-    @JoinColumn(name = "instructor_id")
-    private AsimaZhorabayevaUser instructor;
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private AsimaZhorabayevaCategory category;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<AsimaZhorabayevaLesson> lessons = new ArrayList<>();  // ← ДОБАВЬТЕ ЭТО
+    private List<AsimaZhorabayevaLesson> lessons;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<AsimaZhorabayevaEnrollment> enrollments;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (status == null) status = Status.DRAFT;
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public enum Status {
+        DRAFT, PUBLISHED, ARCHIVED
     }
 }
