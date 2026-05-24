@@ -1,34 +1,29 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "files")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AsimaZhorabayevaFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String fileName;
+    private String originalName;
+    private String storedName;
+    private String contentType;
+    private Long size;
+    private String path;
 
-    private String filePath;
-
-    private Long fileSize;
-
-    private String fileType;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private AsimaZhorabayevaUser user;
-
+    @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
     @PrePersist
