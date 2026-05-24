@@ -1,17 +1,19 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "courses")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ZhoraCourse {
 
     @Id
@@ -24,30 +26,32 @@ public class ZhoraCourse {
     @Column(length = 2000)
     private String description;
 
-    private String instructor;
+    private BigDecimal price;
 
-    private Double price;
+    private String thumbnailUrl;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    @ManyToOne
+    @JoinColumn(name = "instructor_id")
+    private ZhoraUser instructor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private ZhoraCategory category;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<ZhoraLesson> lessons;
+    private List<ZhoraLesson> lessons = new ArrayList<>();
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (status == null) status = Status.DRAFT;
+        updatedAt = LocalDateTime.now();
     }
 
-    public enum Status {
-        DRAFT, PUBLISHED, ARCHIVED
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
