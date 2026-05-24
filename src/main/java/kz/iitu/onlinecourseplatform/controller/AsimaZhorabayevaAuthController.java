@@ -69,7 +69,7 @@ public class AsimaZhorabayevaAuthController {
                 return ResponseEntity.status(401).body(Map.of("error", "Неверный email или пароль"));
             }
 
-            String token = jwtUtil.generateToken(email);
+            String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
             return ResponseEntity.ok(Map.of(
                     "token", token,
