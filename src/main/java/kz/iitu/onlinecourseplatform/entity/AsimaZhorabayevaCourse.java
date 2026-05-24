@@ -34,12 +34,8 @@ public class AsimaZhorabayevaCourse {
     @JoinColumn(name = "instructor_id")
     private AsimaZhorabayevaUser instructor;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private AsimaZhorabayevaCategory category;
-
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<AsimaZhorabayevaLesson> lessons = new ArrayList<>();
+    private List<AsimaZhorabayevaLesson> lessons = new ArrayList<>();  // ← ДОБАВЬТЕ ЭТО
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
