@@ -1,4 +1,4 @@
-package kz.iitu.onlinecourseplatform.service;
+package kz.iitu.onlinecourseplatform.service.async;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -9,28 +9,31 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class AsimaZhorabayevaEmailService {
 
-    @Async
-    public CompletableFuture<Boolean> sendWelcomeEmail(String email, String name) {
-        log.info("Асинхронная отправка email на: {}", email);
-        try {
-            Thread.sleep(2000);
-            log.info("Email успешно отправлен на {}", email);
-            return CompletableFuture.completedFuture(true);
-        } catch (InterruptedException e) {
-            log.error("Ошибка отправки email: {}", e.getMessage());
-            return CompletableFuture.completedFuture(false);
-        }
+    @Async("taskExecutor")
+    public CompletableFuture<Void> sendWelcomeEmail(String email, String username) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                log.info("[ASYNC-EMAIL] Sending welcome email to {} for {}", email, username);
+                Thread.sleep(1000);
+                log.info("[ASYNC-EMAIL] Email sent successfully to {}", email);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("[ASYNC-EMAIL] Failed to send email to {}", email);
+            }
+        });
     }
 
-    @Async
-    public CompletableFuture<Void> sendCourseNotification(String courseTitle, String studentEmail) {
-        log.info("Асинхронное уведомление о курсе {} для {}", courseTitle, studentEmail);
-        try {
-            Thread.sleep(1500);
-            log.info("Уведомление отправлено");
-            return CompletableFuture.completedFuture(null);
-        } catch (InterruptedException e) {
-            return CompletableFuture.completedFuture(null);
-        }
+    @Async("taskExecutor")
+    public CompletableFuture<Void> sendEnrollmentConfirmation(String email, String courseTitle) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                log.info("[ASYNC-EMAIL] Sending enrollment confirmation to {} for course '{}'",
+                        email, courseTitle);
+                Thread.sleep(800);
+                log.info("[ASYNC-EMAIL] Enrollment email sent to {}", email);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 }

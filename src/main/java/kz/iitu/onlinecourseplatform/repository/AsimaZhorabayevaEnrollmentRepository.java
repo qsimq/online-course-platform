@@ -7,8 +7,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AsimaZhorabayevaEnrollmentRepository extends JpaRepository<AsimaZhorabayevaEnrollment, Long> {
-    Optional<AsimaZhorabayevaEnrollment> findByStudentIdAndCourseId(Long studentId, Long courseId);
-    List<AsimaZhorabayevaEnrollment> findByStudentId(Long studentId);
-    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
+public interface AsimaZhorabayevaEnrollmentRepository
+        extends JpaRepository<AsimaZhorabayevaEnrollment, Long> {
+
+    List<AsimaZhorabayevaEnrollment> findByUserId(Long userId);
+
+    List<AsimaZhorabayevaEnrollment> findByCourseId(Long courseId);
+
+    Optional<AsimaZhorabayevaEnrollment> findByUserIdAndCourseId(Long userId, Long courseId);
+
+    boolean existsByUserIdAndCourseId(Long userId, Long courseId);
+
+    long countByCourseId(Long courseId);
 }

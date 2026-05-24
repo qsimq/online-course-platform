@@ -1,36 +1,46 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "enrollments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AsimaZhorabayevaEnrollment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
-    private AsimaZhorabayevaUser student;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private AsimaZhorabayevaUser user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private AsimaZhorabayevaCourse course;
 
+    @Enumerated(EnumType.STRING)
+    private EnrollmentStatus status;
+
+    @Column(name = "enrolled_at")
     private LocalDateTime enrolledAt;
-    private Double progress = 0.0;
-    private Boolean completed = false;
+
+    private Integer progress;
 
     @PrePersist
     protected void onCreate() {
         enrolledAt = LocalDateTime.now();
+        progress = 0;
+        status = EnrollmentStatus.ACTIVE;
+    }
+
+    public enum EnrollmentStatus {
+        ACTIVE, COMPLETED, CANCELLED
     }
 }
