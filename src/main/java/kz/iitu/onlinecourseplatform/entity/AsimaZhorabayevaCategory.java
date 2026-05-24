@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ZhoraCategory {
+public class AsimaZhorabayevaCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,5 +24,5 @@ public class ZhoraCategory {
     private String description;
 
     @OneToMany(mappedBy = "category")
-    private List<ZhoraCourse> courses = new ArrayList<>();
+    private List<AsimaZhorabayevaCourse> courses = new ArrayList<>();
 }

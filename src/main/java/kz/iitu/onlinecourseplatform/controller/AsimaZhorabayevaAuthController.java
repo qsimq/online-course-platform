@@ -1,8 +1,8 @@
 package kz.iitu.onlinecourseplatform.controller;
 
-import kz.iitu.onlinecourseplatform.entity.ZhoraUser;
-import kz.iitu.onlinecourseplatform.security.ZhoraJwtUtil;
-import kz.iitu.onlinecourseplatform.service.ZhoraUserService;
+import kz.iitu.onlinecourseplatform.entity.AsimaZhorabayevaUser;
+import kz.iitu.onlinecourseplatform.security.AsimaZhorabayevaJwtUtil;
+import kz.iitu.onlinecourseplatform.service.AsimaZhorabayevaUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +11,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-public class ZhoraAuthController {
+public class AsimaZhorabayevaAuthController {
 
     @Autowired
-    private ZhoraUserService userService;
+    private AsimaZhorabayevaUserService userService;
 
     @Autowired
-    private ZhoraJwtUtil jwtUtil;
+    private AsimaZhorabayevaJwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
@@ -32,13 +32,13 @@ public class ZhoraAuthController {
             }
 
             // Создание пользователя
-            ZhoraUser user = new ZhoraUser();
+            AsimaZhorabayevaUser user = new AsimaZhorabayevaUser();
             user.setEmail(email);
             user.setPassword(password);
             user.setFullName(fullName);
-            user.setRole(ZhoraUser.Role.STUDENT);
+            user.setRole(AsimaZhorabayevaUser.Role.STUDENT);
 
-            ZhoraUser savedUser = userService.register(user);
+            AsimaZhorabayevaUser savedUser = userService.register(user);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Пользователь успешно зарегистрирован");
@@ -58,7 +58,7 @@ public class ZhoraAuthController {
             String email = request.get("email");
             String password = request.get("password");
 
-            ZhoraUser user = userService.findByEmail(email);
+            AsimaZhorabayevaUser user = userService.findByEmail(email);
 
             if (user == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "Неверный email или пароль"));

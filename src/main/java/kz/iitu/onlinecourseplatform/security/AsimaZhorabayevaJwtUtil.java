@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class ZhoraJwtUtil {
+public class AsimaZhorabayevaJwtUtil {
 
     public String generateToken(String email) {
         // Простой токен для теста

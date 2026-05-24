@@ -1,17 +1,17 @@
 package kz.iitu.onlinecourseplatform.service;
 
-import kz.iitu.onlinecourseplatform.entity.ZhoraUser;
-import kz.iitu.onlinecourseplatform.repository.ZhoraUserRepository;
+import kz.iitu.onlinecourseplatform.entity.AsimaZhorabayevaUser;
+import kz.iitu.onlinecourseplatform.repository.AsimaZhorabayevaUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ZhoraUserService {
+public class AsimaZhorabayevaUserService {
 
     @Autowired
-    private ZhoraUserRepository userRepository;
+    private AsimaZhorabayevaUserRepository userRepository;
 
-    public ZhoraUser register(ZhoraUser user) {
+    public AsimaZhorabayevaUser register(AsimaZhorabayevaUser user) {
         return userRepository.save(user);
     }
 
@@ -19,7 +19,7 @@ public class ZhoraUserService {
         return userRepository.existsByEmail(email);
     }
 
-    public ZhoraUser findByEmail(String email) {
+    public AsimaZhorabayevaUser findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
 }

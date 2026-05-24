@@ -7,30 +7,32 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "enrollments")
+@Table(name = "files")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ZhoraEnrollment {
+public class AsimaZhorabayevaFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
-    private ZhoraUser student;
+    private String fileName;
+
+    private String filePath;
+
+    private Long fileSize;
+
+    private String fileType;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
-    private ZhoraCourse course;
+    @JoinColumn(name = "user_id")
+    private AsimaZhorabayevaUser user;
 
-    private LocalDateTime enrolledAt;
-    private Double progress = 0.0;
-    private Boolean completed = false;
+    private LocalDateTime uploadedAt;
 
     @PrePersist
     protected void onCreate() {
-        enrolledAt = LocalDateTime.now();
+        uploadedAt = LocalDateTime.now();
     }
 }

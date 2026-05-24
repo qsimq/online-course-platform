@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ZhoraCourse {
+public class AsimaZhorabayevaCourse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,14 +32,14 @@ public class ZhoraCourse {
 
     @ManyToOne
     @JoinColumn(name = "instructor_id")
-    private ZhoraUser instructor;
+    private AsimaZhorabayevaUser instructor;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private ZhoraCategory category;
+    private AsimaZhorabayevaCategory category;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<ZhoraLesson> lessons = new ArrayList<>();
+    private List<AsimaZhorabayevaLesson> lessons = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

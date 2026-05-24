@@ -4,10 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import kz.iitu.onlinecourseplatform.entity.ZhoraUser;
+import kz.iitu.onlinecourseplatform.entity.AsimaZhorabayevaUser;
 
 @Data
-public class ZhoraRegisterRequest {
+public class AsimaZhorabayevaRegisterRequest {
 
     @NotBlank(message = "Email обязателен")
     @Email(message = "Некорректный email")
@@ -20,6 +20,6 @@ public class ZhoraRegisterRequest {
     @NotBlank(message = "Имя обязательно")
     private String fullName;
 
-    // Используем полное имя ZhoraUser.Role
-    private ZhoraUser.Role role = ZhoraUser.Role.STUDENT;
+    // Используем полное имя AsimaZhorabayevaUser.Role
+    private AsimaZhorabayevaUser.Role role = AsimaZhorabayevaUser.Role.STUDENT;
 }
