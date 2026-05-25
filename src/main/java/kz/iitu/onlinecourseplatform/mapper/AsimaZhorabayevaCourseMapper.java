@@ -1,40 +1,23 @@
-package kz.iitu.onlinecourseplatform;
+package kz.iitu.onlinecourseplatform.mapper;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
-import java.time.LocalDateTime;
+import kz.iitu.onlinecourseplatform.dto.AsimaZhorabayevaCourseDto;
+import kz.iitu.onlinecourseplatform.entity.AsimaZhorabayevaCourse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class AsimaZhorabayevaCourseDto {
+@Mapper(componentModel = "spring")
+public interface AsimaZhorabayevaCourseMapper {
 
-    private Long id;
+    @Mapping(target = "categoryName", source = "category.name")
+    @Mapping(target = "lessonCount", expression = "java(course.getLessons() == null ? 0 : course.getLessons().size())")
+    AsimaZhorabayevaCourseDto toDto(AsimaZhorabayevaCourse course);
 
-    @NotBlank(message = "Title is required")
-    @Size(min = 3, max = 200, message = "Title must be between 3 and 200 characters")
-    private String title;
-
-    @Size(max = 2000, message = "Description must be less than 2000 characters")
-    private String description;
-
-    @NotBlank(message = "Instructor is required")
-    private String instructor;
-
-    @Min(value = 0, message = "Price must be greater than or equal to 0")
-    private Double price;
-
-    private String thumbnailUrl;
-
-    private String status;
-
-    private String categoryName;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private int lessonCount;
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "enrollments", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    AsimaZhorabayevaCourse toEntity(AsimaZhorabayevaCourseDto dto);
 }
