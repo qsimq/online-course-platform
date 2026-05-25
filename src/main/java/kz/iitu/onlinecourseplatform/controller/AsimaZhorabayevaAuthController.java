@@ -1,59 +1,50 @@
 package kz.iitu.onlinecourseplatform.controller;
 
-import kz.iitu.onlinecourseplatform.entity.AsimaZhorabayevaUser;
-import kz.iitu.onlinecourseplatform.repository.AsimaZhorabayevaUserRepository;
-import kz.iitu.onlinecourseplatform.security.AsimaZhorabayevaJwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Auth Controller", description = "API для аутентификации")
 public class AsimaZhorabayevaAuthController {
 
-    private final AsimaZhorabayevaUserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AsimaZhorabayevaJwtUtil jwtUtil;
+    // Временное хранилище пользователей
+    private final Map<String, Map<String, String>> users = new HashMap<>();
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
-
+    @Operation(summary = "Регистрация нового пользователя")
+    public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, String> request) {
         String username = request.get("username");
-        String email    = request.get("email");
+        String email = request.get("email");
         String password = request.get("password");
 
+        log.info("POST /api/auth/register - username: {}", username);
+
         if (username == null || email == null || password == null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "username, email and password are required"));
-        }
-        if (userRepository.existsByUsername(username)) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Username already taken"));
-        }
-        if (userRepository.existsByEmail(email)) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "Email already registered"));
+            return ResponseEntity.badRequest().body(Map.of("message", "username, email and password are required"));
         }
 
-        AsimaZhorabayevaUser user = AsimaZhorabayevaUser.builder()
-                .username(username)
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .role(AsimaZhorabayevaUser.Role.USER)
-                .build();
+        if (users.containsKey(username)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Username already taken"));
+        }
 
-        userRepository.save(user);
-        log.info("New user registered: {}", username);
+        Map<String, String> user = new HashMap<>();
+        user.put("username", username);
+        user.put("email", email);
+        user.put("password", password);
+        user.put("role", "USER");
+        users.put(username, user);
 
-        String token = jwtUtil.generateToken(username,
-                AsimaZhorabayevaUser.Role.USER.name());
+        String token = generateSimpleToken(username);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+        return ResponseEntity.ok(Map.of(
                 "token", token,
                 "username", username,
                 "role", "USER",
@@ -62,27 +53,30 @@ public class AsimaZhorabayevaAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-
+    @Operation(summary = "Вход в систему")
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> request) {
         String username = request.get("username");
         String password = request.get("password");
 
-        AsimaZhorabayevaUser user = userRepository
-                .findByUsername(username).orElse(null);
+        log.info("POST /api/auth/login - username: {}", username);
 
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Invalid credentials"));
+        Map<String, String> user = users.get(username);
+
+        if (user == null || !user.get("password").equals(password)) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         }
 
-        log.info("User logged in: {}", username);
-        String token = jwtUtil.generateToken(username, user.getRole().name());
+        String token = generateSimpleToken(username);
 
         return ResponseEntity.ok(Map.of(
                 "token", token,
                 "username", username,
-                "role", user.getRole().name(),
+                "role", user.get("role"),
                 "message", "Login successful"
         ));
+    }
+
+    private String generateSimpleToken(String username) {
+        return "token_" + username + "_" + System.currentTimeMillis();
     }
 }

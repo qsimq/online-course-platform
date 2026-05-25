@@ -1,17 +1,18 @@
 package kz.iitu.onlinecourseplatform.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AsimaZhorabayevaUser {
 
     @Id
@@ -27,22 +28,26 @@ public class AsimaZhorabayevaUser {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "full_name")  // ← УБРАЛИ nullable = false
+    private String fullName;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<AsimaZhorabayevaEnrollment> enrollments;
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean enabled = true;
+
+    public enum Role {
+        USER, ADMIN, INSTRUCTOR
+    }
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         if (role == null) role = Role.USER;
-    }
-
-    public enum Role {
-        USER, ADMIN
     }
 }
