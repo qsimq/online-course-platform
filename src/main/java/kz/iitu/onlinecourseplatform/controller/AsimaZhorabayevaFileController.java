@@ -21,47 +21,70 @@ public class AsimaZhorabayevaFileController {
 
     private final AsimaZhorabayevaFileRepository fileRepository;
 
-    @Value("${app.upload.dir}")
+    @Value("${app.upload.dir:uploads/}")
     private String uploadDir;
 
-    @PostMapping(value = "/upload",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> upload(
-            @RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+        try {
+            // Создаём папку если не существует
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+                log.info("Created upload directory: {}", uploadPath.toAbsolutePath());
+            }
 
-        Files.createDirectories(Paths.get(uploadDir));
-        String stored = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Path target = Paths.get(uploadDir + stored);
-        Files.copy(file.getInputStream(), target,
-                StandardCopyOption.REPLACE_EXISTING);
+            String stored = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path target = uploadPath.resolve(stored);
+            Files.copy(file.getInputStream(), target,
+                    StandardCopyOption.REPLACE_EXISTING);
 
-        AsimaZhorabayevaFile saved = fileRepository.save(
-                AsimaZhorabayevaFile.builder()
-                        .originalName(file.getOriginalFilename())
-                        .storedName(stored)
-                        .contentType(file.getContentType())
-                        .size(file.getSize())
-                        .path(target.toString())
-                        .build());
+            AsimaZhorabayevaFile saved = fileRepository.save(
+                    AsimaZhorabayevaFile.builder()
+                            .originalName(file.getOriginalFilename())
+                            .storedName(stored)
+                            .contentType(file.getContentType())
+                            .size(file.getSize())
+                            .path(target.toAbsolutePath().toString())
+                            .build());
 
-        log.info("File uploaded: id={} name={}", saved.getId(), saved.getOriginalName());
-        return ResponseEntity.ok(saved);
+            log.info("File uploaded: id={} name={} size={}",
+                    saved.getId(), saved.getOriginalName(), saved.getSize());
+
+            return ResponseEntity.ok(saved);
+
+        } catch (IOException e) {
+            log.error("File upload failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
+        }
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> download(@PathVariable Long id) throws IOException {
-        AsimaZhorabayevaFile f = fileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("File not found: " + id));
+    public ResponseEntity<Resource> download(@PathVariable Long id) {
+        try {
+            AsimaZhorabayevaFile f = fileRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("File not found: " + id));
 
-        Path path = Paths.get(f.getPath());
-        Resource resource = new UrlResource(path.toUri());
+            Path path = Paths.get(f.getPath());
+            Resource resource = new UrlResource(path.toUri());
 
-        log.info("File downloaded: id={} name={}", id, f.getOriginalName());
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(f.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + f.getOriginalName() + "\"")
-                .body(resource);
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            log.info("File downloaded: id={} name={}", id, f.getOriginalName());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(
+                            f.getContentType() != null ? f.getContentType() : "application/octet-stream"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + f.getOriginalName() + "\"")
+                    .body(resource);
+
+        } catch (Exception e) {
+            log.error("File download failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
@@ -70,12 +93,16 @@ public class AsimaZhorabayevaFileController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws IOException {
-        AsimaZhorabayevaFile f = fileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("File not found: " + id));
-        Files.deleteIfExists(Paths.get(f.getPath()));
-        fileRepository.deleteById(id);
-        log.info("File deleted: id={}", id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        try {
+            AsimaZhorabayevaFile f = fileRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("File not found: " + id));
+            Files.deleteIfExists(Paths.get(f.getPath()));
+            fileRepository.deleteById(id);
+            log.info("File deleted: id={}", id);
+        } catch (IOException e) {
+            log.error("File delete failed: {}", e.getMessage());
+        }
         return ResponseEntity.noContent().build();
     }
 }
